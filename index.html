@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&amp;family=DM+Mono:ital,wght@0,400;0,500;1,400&amp;display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --cream:#FAFAF7;--cream-dark:#EEF0EB;
+  --rose:#DDB8B8;--rose-dark:#bb7878;--rose-light:#F9EEEE;
+  --gold:#bb7878;--gold-light:#F9EEEE;--gold-dark:#9a5f5f;
+  --sage:#2E86C1;--sage-light:#D6E8F5;--sage-dark:#1B4F72;
+  --ink:#1B4F72;--ink-mid:#555555;--ink-light:#888888;
+  --border:#DDDDDD;--border-light:#EEEEEE;
+}
+html{font-size:15px;}
+body{background:var(--cream);font-family:'Libre Baskerville',serif;color:#222222;min-height:100vh;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--cream);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+header{background:var(--ink);padding:0 32px;position:sticky;top:0;z-index:50;border-bottom:2px solid var(--gold-dark);}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;}
+.wordmark{display:flex;align-items:baseline;gap:10px;}
+.wordmark-title{font-family:'Libre Baskerville',serif;font-size:18px;font-weight:700;color:var(--cream);letter-spacing:.02em;}
+.wordmark-sub{font-family:'DM Mono',monospace;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);}
+nav{display:flex;gap:2px;}
+.nav-btn{background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:7px 14px;border-radius:3px;color:#9AA0A0;transition:all .15s;}
+.nav-btn:hover{color:var(--cream);background:rgba(255,255,255,.08);}
+.nav-btn.active{color:white;background:var(--gold);}
+
+main{max-width:1200px;margin:0 auto;padding:28px 32px;}
+
+.page-title{font-family:'Libre Baskerville',serif;font-size:26px;font-weight:600;color:var(--ink);}
+.page-subtitle{font-size:12px;font-weight:400;color:var(--ink-light);margin-top:2px;}
+.section-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--ink-light);}
+
+.card{background:white;border:1px solid var(--border);border-radius:6px;padding:18px 20px;}
+.card-elevated{background:white;border:1px solid var(--border);border-radius:6px;padding:18px 20px;box-shadow:0 2px 10px rgba(46,49,49,.07);}
+
+.input{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:4px;font-family:'DM Mono',monospace;font-size:13px;color:#222222;background:white;outline:none;transition:border-color .15s,box-shadow .15s;}
+.input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(46,134,193,.15);}
+select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;background-color:white;padding-right:30px;}
+.input-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-mid);margin-bottom:4px;display:block;}
+
+.btn{font-family:'DM Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;border-radius:3px;border:none;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.btn-primary{background:var(--ink);color:var(--cream);}
+.btn-primary:hover{background:var(--ink-mid);}
+.btn-gold{background:var(--gold);color:white;}
+.btn-gold:hover{background:var(--gold-dark);}
+.btn-ghost{background:transparent;color:var(--ink-mid);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--ink-mid);color:var(--ink);}
+.btn-danger{background:transparent;color:var(--rose-dark);border:1px solid var(--rose);}
+.btn-danger:hover{background:var(--rose-light);}
+.btn-sm{padding:5px 10px;font-size:9.5px;}
+.btn-sage{background:var(--sage);color:white;}
+.btn-sage:hover{background:var(--sage-dark);}
+.icon-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:3px;color:var(--ink-light);font-size:13px;transition:all .12s;line-height:1;}
+.icon-btn:hover{background:var(--cream-dark);color:var(--ink);}
+.icon-btn.danger:hover{background:var(--rose-light);color:var(--rose-dark);}
+
+.overlay{position:fixed;inset:0;background:rgba(46,49,49,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:white;border-radius:8px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(46,49,49,.25);}
+.modal-title{font-family:'Libre Baskerville',serif;font-size:20px;font-weight:600;color:var(--ink);margin-bottom:22px;}
+
+.form-grid{display:flex;flex-direction:column;gap:14px;}
+.form-row{display:grid;gap:12px;}
+.form-row-2{grid-template-columns:1fr 1fr;}
+.form-row-3{grid-template-columns:1fr 1fr 1fr;}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;}
+.stat-card{background:white;border:1px solid var(--border);border-radius:5px;padding:14px 16px;border-top:3px solid;}
+.stat-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-light);margin-bottom:6px;}
+.stat-number{font-family:'Libre Baskerville',serif;font-size:26px;font-weight:700;color:var(--ink);}
+.stat-sub{font-size:11px;color:var(--ink-light);margin-top:2px;}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:10px 0 8px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.section-title{font-family:'Libre Baskerville',serif;font-size:15px;font-style:italic;font-weight:400;color:var(--ink-mid);}
+.section-count{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-light);background:var(--cream-dark);padding:2px 7px;border-radius:10px;}
+
+.divider{border:none;border-top:1px solid var(--border-light);margin:20px 0;}
+
+/* PROJECTION TABLE */
+.proj-table{width:100%;border-collapse:collapse;}
+.proj-table th{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-light);padding:6px 10px;text-align:left;background:var(--cream-dark);border-bottom:1px solid var(--border);}
+.proj-table td{font-size:12.5px;padding:5px 10px;border-bottom:1px solid var(--border-light);}
+.proj-table tr:hover td{background:rgba(209,166,90,.05);}
+.proj-month-header td{background:var(--ink);color:var(--cream);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 10px;cursor:pointer;}
+.proj-month-header td:hover{background:var(--ink-mid);}
+.bal-positive{color:var(--ink);}
+.bal-warning{color:var(--gold-dark);font-weight:600;}
+.bal-negative{color:var(--rose-dark);font-weight:600;}
+.amt-expense{color:var(--rose-dark);}
+.amt-income{color:var(--sage-dark);}
+.amt-zero{color:var(--ink-light);}
+.td-right{text-align:right;}
+.td-center{text-align:center;}
+
+/* BILLS / INCOME TABLES */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-light);padding:5px 10px;text-align:left;background:var(--cream-dark);border-bottom:1px solid var(--border);}
+.data-table td{font-size:12.5px;padding:7px 10px;border-bottom:1px solid var(--border-light);}
+.data-table tr:hover td{background:rgba(209,166,90,.04);}
+
+.eom-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px;}
+.eom-card{background:white;border:1px solid var(--border);border-radius:4px;padding:10px 12px;}
+.eom-month{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-light);}
+.eom-bal{font-family:'Libre Baskerville',serif;font-size:16px;font-weight:600;margin-top:2px;}
+
+/* CHORE CARDS */
+.chore-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.chore-card{background:white;border:1px solid var(--border);border-radius:6px;padding:18px;}
+.chore-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border-light);}
+.chore-name{font-family:'Libre Baskerville',serif;font-size:17px;font-weight:600;color:var(--ink);}
+.chore-total{font-family:'Libre Baskerville',serif;font-size:17px;font-weight:700;color:var(--gold-dark);}
+.chore-row{display:grid;grid-template-columns:1fr 70px 60px 30px;gap:6px;align-items:center;margin-bottom:5px;}
+.chore-row-add{display:grid;grid-template-columns:1fr 70px;gap:6px;align-items:center;margin-top:8px;}
+.chore-amt{font-size:12px;color:var(--ink-mid);text-align:right;}
+.ded-row{display:grid;grid-template-columns:1fr 80px 30px;gap:6px;align-items:center;margin-bottom:5px;}
+.ded-section{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border);}
+.chore-subtotal{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--border-light);font-size:12px;color:var(--ink-light);}
+.chore-net{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:13px;font-weight:600;color:var(--ink);}
+.rate-bar{display:flex;align-items:center;gap:16px;background:white;border:1px solid var(--border);border-radius:6px;padding:14px 18px;margin-bottom:20px;}
+.rate-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-light);}
+.rate-input{width:80px;}
+
+/* DR NOTE */
+.note-inputs{display:grid;grid-template-columns:1fr 1fr 80px 1fr;gap:12px;align-items:end;background:white;border:1px solid var(--border);border-radius:6px;padding:16px 20px;margin-bottom:20px;}
+.note-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.note-card{background:white;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.note-card-header{background:var(--ink);color:var(--cream);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;}
+.note-card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;}
+.note-preview{padding:20px;font-size:11px;line-height:1.6;color:#222222;min-height:420px;}
+.note-clinic-name{font-size:13px;font-weight:700;margin-bottom:2px;}
+.note-clinic-addr{font-size:10px;color:var(--ink-mid);margin-bottom:12px;}
+.note-body{font-size:11px;line-height:1.65;}
+.note-date{margin-bottom:12px;}
+.note-salutation{margin-bottom:8px;}
+.note-para{margin-bottom:10px;}
+.note-field-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-light);margin-top:12px;margin-bottom:2px;}
+.note-sig-line{border-bottom:1px solid var(--ink);margin-bottom:8px;}
+.note-sig-line.short{width:45%;}
+.note-sig-line.full{width:75%;}
+.note-footer{margin-top:16px;padding-top:10px;border-top:1px solid var(--border-light);font-size:10.5px;font-weight:600;}
+.note-checkbox-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:6px;font-size:11px;}
+.note-checkbox{width:14px;height:14px;border:1.5px solid var(--ink);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.note-checked{background:var(--ink);}
+.note-checked::after{content:'✓';color:white;font-size:8px;font-weight:700;}
+.note-locations{font-size:9px;color:var(--ink-mid);border:1px solid var(--border);padding:8px;border-radius:3px;margin-bottom:10px;line-height:1.7;}
+.note-vision{font-size:9px;font-style:italic;color:var(--ink-mid);border:1px solid var(--border);padding:6px 8px;border-radius:3px;margin-bottom:12px;}
+
+.settings-bar{display:grid;grid-template-columns:auto auto auto 1fr;gap:16px;align-items:end;background:white;border:1px solid var(--border);border-radius:6px;padding:14px 18px;margin-bottom:20px;}
+
+.empty-state{text-align:center;padding:32px 20px;color:var(--ink-light);font-style:italic;font-size:13px;}
+.alert-banner{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:4px;margin-bottom:10px;font-size:12.5px;cursor:pointer;font-family:'DM Mono',monospace;font-weight:600;transition:filter .15s;}
+.alert-banner:hover{filter:brightness(.95);}
+.alert-warn{background:#FEF3CD;border-left:4px solid #C9920A;color:#7A5700;}
+.alert-danger{background:var(--rose-light);border-left:4px solid var(--rose-dark);color:var(--rose-dark);}
+.collapse-toggle{cursor:pointer;user-select:none;}
+
+@media(max-width:900px){
+  .chore-grid{grid-template-columns:1fr;}
+  .note-cards{grid-template-columns:1fr;}
+  .note-inputs{grid-template-columns:1fr 1fr;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  main{padding:18px 16px;}
+  .settings-bar{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+
+
+const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+const localToday = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
+const addDays = (dateStr, n) => {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
+const fmtMoney = n => {
+  const abs = Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n < 0 ? `-$${abs}` : `$${abs}`;
+};
+
+const fmtDate = s => s ? new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+const fmtDateMDY = s => {
+  if (!s) return '';
+  const d = new Date(s+'T00:00:00');
+  return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
+};
+const fmtDateLong = s => s ? new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'2-digit',year:'numeric'}) : '';
+const fmtMonthYear = s => s ? new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'}) : '';
+const fmtMonthShort = s => s ? new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'short',year:'2-digit'}) : '';
+
+const lastDOM = (year, month) => new Date(year, month+1, 0).getDate();
+
+const balClass = n => n < 0 ? 'bal-negative' : n < 1000 ? 'bal-warning' : 'bal-positive';
+
+// ── DEFAULT DATA ──────────────────────────────────────────────────────────────
+
+// @@DATA:BILLS@@
+const DEFAULT_BILLS = [];
+// @@END:BILLS@@
+
+// @@DATA:INCOME@@
+const DEFAULT_INCOME = [];
+// @@END:INCOME@@
+
+// @@DATA:DEBTS@@
+const DEFAULT_DEBTS = [];
+// @@END:DEBTS@@
+
+// @@DATA:KIDS@@
+const DEFAULT_KIDS = [];
+// @@END:KIDS@@
+
+
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+
+const STORAGE_KEY = 'family-calc-data';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+}
+
+function saveData(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+}
+
+// ── PROJECTION GENERATOR ─────────────────────────────────────────────────────
+
+function generateProjection(startBalance, startDateStr, bills, incomeList, monthsAhead) {
+  const startDate = new Date(startDateStr + 'T00:00:00');
+  const endDate   = new Date(startDate);
+  endDate.setMonth(endDate.getMonth() + monthsAhead);
+
+  const entries = [];
+  let order = 0;
+
+  // Bills — monthly on dueDay
+  for (const bill of bills) {
+    let cursor = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+    while (cursor <= endDate) {
+      const yr = cursor.getFullYear(), mo = cursor.getMonth();
+      const day = Math.min(bill.dueDay, lastDOM(yr, mo));
+      const d = new Date(yr, mo, day);
+      if (d >= startDate && d <= endDate) {
+        entries.push({ date: d, dateStr: d.toISOString().slice(0,10), name: bill.name, amount: -bill.amount, type: 'bill', order: order++ });
+      }
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+  }
+
+  // Income
+  for (const inc of incomeList) {
+    if (inc.cadence === 'biweekly') {
+      const incStart = new Date(inc.startDate + 'T00:00:00');
+      let d = new Date(incStart);
+      while (d < startDate) d.setDate(d.getDate() + 14);
+      while (d <= endDate) {
+        if (d >= startDate) {
+          entries.push({ date: new Date(d), dateStr: d.toISOString().slice(0,10), name: inc.name, amount: inc.amount, type: 'income', order: order++ });
+        }
+        d.setDate(d.getDate() + 14);
+      }
+    } else if (inc.cadence === '2x-month') {
+      let cursor = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+      while (cursor <= endDate) {
+        const yr = cursor.getFullYear(), mo = cursor.getMonth();
+        const maxD = lastDOM(yr, mo);
+        const day1 = inc.day1 ? Math.min(inc.day1, maxD) : null;
+        const day2 = inc.day2 >= 29 ? maxD : (inc.day2 ? Math.min(inc.day2, maxD) : null);
+        for (const day of [day1, day2]) {
+          if (!day) continue;
+          const d = new Date(yr, mo, day);
+          if (d >= startDate && d <= endDate) {
+            entries.push({ date: d, dateStr: d.toISOString().slice(0,10), name: inc.name, amount: inc.amount, type: 'income', order: order++ });
+          }
+        }
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+    } else if (inc.cadence === 'monthly') {
+      let cursor = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+      while (cursor <= endDate) {
+        const yr = cursor.getFullYear(), mo = cursor.getMonth();
+        const day = Math.min(inc.day1 || 1, lastDOM(yr, mo));
+        const d = new Date(yr, mo, day);
+        if (d >= startDate && d <= endDate) {
+          entries.push({ date: d, dateStr: d.toISOString().slice(0,10), name: inc.name, amount: inc.amount, type: 'income', order: order++ });
+        }
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+    }
+  }
+
+  // Sort: date ASC, then by order (preserves bill array order first, income order second)
+  entries.sort((a, b) => a.dateStr !== b.dateStr ? a.dateStr.localeCompare(b.dateStr) : a.order - b.order);
+
+  // Running balance
+  let bal = startBalance;
+  return entries.map(e => { bal += e.amount; return { ...e, balance: bal }; });
+}
+
+function eomSummary(projection) {
+  const map = {};
+  for (const e of projection) {
+    const key = e.dateStr.slice(0, 7);
+    map[key] = e.balance;
+  }
+  return Object.entries(map).map(([k, v]) => ({ monthKey: k, balance: v }));
+}
+
+// ── BILL MODAL ────────────────────────────────────────────────────────────────
+
+function BillModal({ bill, onSave, onClose }) {
+  const [form, setForm] = useState(bill || { name:'', amount:'', dueDay:'' });
+  const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
+  const submit = () => {
+    if (!form.name || form.dueDay === '') return;
+    onSave({ id: bill?.id || uid(), name: form.name.trim(), amount: parseFloat(form.amount)||0, dueDay: parseInt(form.dueDay)||1 });
+  };
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-title">{bill ? 'Edit Bill' : 'Add Bill'}</div>
+        <div className="form-grid">
+          <div><label className="input-label">Name</label><input className="input" value={form.name} onChange={set('name')} placeholder="e.g. Electric"/></div>
+          <div className="form-row form-row-2">
+            <div><label className="input-label">Amount ($)</label><input className="input" type="number" step="0.01" value={form.amount} onChange={set('amount')} placeholder="0.00"/></div>
+            <div><label className="input-label">Due Day (1–31)</label><input className="input" type="number" min="1" max="31" value={form.dueDay} onChange={set('dueDay')} placeholder="1"/></div>
+          </div>
+          <div style={{fontSize:'11px',color:'var(--ink-light)'}}>Set amount to 0 to track due dates without affecting the balance.</div>
+          <div style={{display:'flex',gap:'8px',justifyContent:'flex-end',marginTop:'8px'}}>
+            <button className="btn btn-ghost btn-sm" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary btn-sm" onClick={submit}>Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── INCOME MODAL ──────────────────────────────────────────────────────────────
+
+function IncomeModal({ inc, onSave, onClose }) {
+  const [form, setForm] = useState(inc || { name:'', amount:'', cadence:'biweekly', startDate: localToday(), day1:'15', day2:'31' });
+  const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
+  const submit = () => {
+    if (!form.name) return;
+    onSave({
+      id: inc?.id || uid(),
+      name: form.name.trim(),
+      amount: parseFloat(form.amount)||0,
+      cadence: form.cadence,
+      startDate: form.startDate || localToday(),
+      day1: parseInt(form.day1)||null,
+      day2: parseInt(form.day2)||null,
+    });
+  };
+  const cadenceLabel = { biweekly:'Bi-Weekly', '2x-month':'2× / Month', monthly:'Monthly' };
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-title">{inc ? 'Edit Income' : 'Add Income'}</div>
+        <div className="form-grid">
+          <div><label className="input-label">Name</label><input className="input" value={form.name} onChange={set('name')} placeholder="e.g. Paycheck"/></div>
+          <div className="form-row form-row-2">
+            <div><label className="input-label">Amount ($)</label><input className="input" type="number" step="0.01" value={form.amount} onChange={set('amount')} placeholder="0.00"/></div>
+            <div><label className="input-label">Cadence</label>
+              <select className="input" value={form.cadence} onChange={set('cadence')}>
+                <option value="biweekly">Bi-Weekly</option>
+                <option value="2x-month">2× / Month</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+          </div>
+          {form.cadence === 'biweekly' && (
+            <div><label className="input-label">Pay Cycle Start Date</label><input className="input" type="date" value={form.startDate} onChange={set('startDate')}/></div>
+          )}
+          {form.cadence === '2x-month' && (
+            <div className="form-row form-row-2">
+              <div><label className="input-label">Day 1 of Month</label><input className="input" type="number" min="1" max="31" value={form.day1} onChange={set('day1')} placeholder="15"/></div>
+              <div><label className="input-label">Day 2 (31 = last day)</label><input className="input" type="number" min="1" max="31" value={form.day2} onChange={set('day2')} placeholder="31"/></div>
+            </div>
+          )}
+          {form.cadence === 'monthly' && (
+            <div><label className="input-label">Day of Month</label><input className="input" type="number" min="1" max="31" value={form.day1} onChange={set('day1')} placeholder="1"/></div>
+          )}
+          <div style={{display:'flex',gap:'8px',justifyContent:'flex-end',marginTop:'8px'}}>
+            <button className="btn btn-ghost btn-sm" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary btn-sm" onClick={submit}>Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── DEBT MODAL ────────────────────────────────────────────────────────────────
+
+function DebtModal({ debt, onSave, onClose }) {
+  const [form, setForm] = useState(debt || { name:'', creditor:'', balance:'', rate:'', minPmt:'', type:'credit', creditLine:'', paidBy:'' });
+  const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
+  const submit = () => {
+    if (!form.name) return;
+    onSave({ id: debt?.id || uid(), name: form.name.trim(), creditor: form.creditor.trim(), balance: parseFloat(form.balance)||0, rate: parseFloat(form.rate)||0, minPmt: parseFloat(form.minPmt)||0, type: form.type, creditLine: parseFloat(form.creditLine)||0, paidBy: form.paidBy });
+  };
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-title">{debt ? 'Edit Debt' : 'Add Debt'}</div>
+        <div className="form-grid">
+          <div className="form-row form-row-2">
+            <div><label className="input-label">Name</label><input className="input" value={form.name} onChange={set('name')} placeholder="Mortgage"/></div>
+            <div><label className="input-label">Creditor</label><input className="input" value={form.creditor} onChange={set('creditor')} placeholder="CrossCountry"/></div>
+          </div>
+          <div className="form-row form-row-3">
+            <div><label className="input-label">Balance ($)</label><input className="input" type="number" step="0.01" value={form.balance} onChange={set('balance')}/></div>
+            <div><label className="input-label">Rate (%)</label><input className="input" type="number" step="0.01" value={form.rate} onChange={set('rate')}/></div>
+            <div><label className="input-label">Min Payment</label><input className="input" type="number" step="0.01" value={form.minPmt} onChange={set('minPmt')}/></div>
+          </div>
+          <div className="form-row form-row-3">
+            <div><label className="input-label">Type</label>
+              <select className="input" value={form.type} onChange={set('type')}>
+                <option value="loan">Loan</option><option value="credit">Credit Card</option><option value="auto">Auto</option>
+              </select>
+            </div>
+            <div><label className="input-label">Credit Line</label><input className="input" type="number" step="0.01" value={form.creditLine} onChange={set('creditLine')}/></div>
+            <div><label className="input-label">Paid Off By</label><input className="input" value={form.paidBy} onChange={set('paidBy')} placeholder="Jan 2030"/></div>
+          </div>
+          <div style={{display:'flex',gap:'8px',justifyContent:'flex-end',marginTop:'8px'}}>
+            <button className="btn btn-ghost btn-sm" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary btn-sm" onClick={submit}>Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── FAMILY DETAILS TAB ────────────────────────────────────────────────────────
+
+function FamilyDetailsTab({ data, onChange }) {
+  const { startBalance, startDate, projMonths, bills, income, debts } = data;
+  const [billModal, setBillModal] = useState(null);
+  const [incModal, setIncModal]   = useState(null);
+  const [debtModal, setDebtModal] = useState(null);
+  const [collapsed, setCollapsed] = useState({});
+  const [showDebts, setShowDebts] = useState(false);
+
+  const projection = useMemo(() =>
+    generateProjection(startBalance, startDate, bills, income, projMonths),
+    [startBalance, startDate, bills, income, projMonths]
+  );
+
+  const eom = useMemo(() => eomSummary(projection), [projection]);
+
+  const alert100 = useMemo(() => projection.find(e => e.balance < 100), [projection]);
+  const alert50  = useMemo(() => projection.find(e => e.balance < 50),  [projection]);
+
+  const scrollToAlert = useCallback((entry) => {
+    if (!entry) return;
+    const monthKey = entry.dateStr.slice(0, 7);
+    setCollapsed(c => ({ ...c, [monthKey]: false }));
+    setTimeout(() => {
+      const el = document.getElementById(`proj-row-${entry.order}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.transition = 'background .15s';
+        el.style.background = '#FEF3CD';
+        setTimeout(() => { el.style.background = ''; }, 1800);
+      }
+    }, 60);
+  }, []);
+
+  const monthGroups = useMemo(() => {
+    const groups = {};
+    for (const e of projection) {
+      const key = e.dateStr.slice(0,7);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(e);
+    }
+    return groups;
+  }, [projection]);
+
+  const monthlyIn  = income.filter(i=>i.amount>0).reduce((s,i) => {
+    if (i.cadence==='biweekly') return s + i.amount*26/12;
+    if (i.cadence==='2x-month') return s + i.amount*2;
+    return s + i.amount;
+  }, 0);
+  const monthlyOut = bills.filter(b=>b.amount>0).reduce((s,b) => s+b.amount, 0);
+
+  const update = k => v => onChange({ ...data, [k]: v });
+
+  const saveBill = b => {
+    const list = billModal?.id ? bills.map(x=>x.id===b.id?b:x) : [...bills, b];
+    onChange({ ...data, bills: list });
+    setBillModal(null);
+  };
+  const delBill = id => onChange({ ...data, bills: bills.filter(b=>b.id!==id) });
+
+  const saveInc = i => {
+    const list = incModal?.id ? income.map(x=>x.id===i.id?i:x) : [...income, i];
+    onChange({ ...data, income: list });
+    setIncModal(null);
+  };
+  const delInc = id => onChange({ ...data, income: income.filter(i=>i.id!==id) });
+
+  const saveDebt = d => {
+    const list = debtModal?.id ? debts.map(x=>x.id===d.id?d:x) : [...debts, d];
+    onChange({ ...data, debts: list });
+    setDebtModal(null);
+  };
+  const delDebt = id => onChange({ ...data, debts: debts.filter(d=>d.id!==id) });
+
+  const cadenceLabel = { biweekly:'Bi-weekly', '2x-month':'2× / mo', monthly:'Monthly' };
+
+  return (
+    <div>
+      {/* Stats */}
+      <div className="stats-row">
+        <div className="stat-card" style={{borderTopColor:'var(--gold)'}}>
+          <div className="stat-label">Starting Balance</div>
+          <div className={`stat-number ${balClass(startBalance)}`}>{fmtMoney(startBalance)}</div>
+          <div className="stat-sub">as of {fmtDate(startDate)}</div>
+        </div>
+        <div className="stat-card" style={{borderTopColor:'var(--sage)'}}>
+          <div className="stat-label">Monthly Income</div>
+          <div className="stat-number" style={{color:'var(--sage-dark)'}}>{fmtMoney(monthlyIn)}</div>
+          <div className="stat-sub">est. per month</div>
+        </div>
+        <div className="stat-card" style={{borderTopColor:'var(--rose-dark)'}}>
+          <div className="stat-label">Monthly Bills</div>
+          <div className="stat-number" style={{color:'var(--rose-dark)'}}>{fmtMoney(monthlyOut)}</div>
+          <div className="stat-sub">recurring only</div>
+        </div>
+        <div className="stat-card" style={{borderTopColor: monthlyIn-monthlyOut>=0 ? 'var(--sage)' : 'var(--rose-dark)'}}>
+          <div className="stat-label">Net Monthly</div>
+          <div className={`stat-number ${balClass(monthlyIn-monthlyOut)}`}>{fmtMoney(monthlyIn-monthlyOut)}</div>
+          <div className="stat-sub">income minus bills</div>
+        </div>
+      </div>
+
+      {/* Settings */}
+      <div className="settings-bar">
+        <div>
+          <label className="input-label">Starting Balance</label>
+          <input className="input" type="number" step="0.01" style={{width:'140px'}} value={startBalance}
+            onChange={e => update('startBalance')(parseFloat(e.target.value)||0)}/>
+        </div>
+        <div>
+          <label className="input-label">As Of Date</label>
+          <input className="input" type="date" style={{width:'150px'}} value={startDate}
+            onChange={e => update('startDate')(e.target.value)}/>
+        </div>
+        <div>
+          <label className="input-label">Months Ahead</label>
+          <input className="input" type="number" min="1" max="36" style={{width:'80px'}} value={projMonths}
+            onChange={e => update('projMonths')(parseInt(e.target.value)||13)}/>
+        </div>
+        <div/>
+      </div>
+
+      {/* Alerts */}
+      {alert100 && (
+        <div className="alert-banner alert-warn" onClick={() => scrollToAlert(alert100)}>
+          ⚠ Balance drops below $100 on {fmtDate(alert100.dateStr)} after {alert100.name} — click to view
+        </div>
+      )}
+      {alert50 && (
+        <div className="alert-banner alert-danger" onClick={() => scrollToAlert(alert50)}>
+          ⚠ Balance drops below $50 on {fmtDate(alert50.dateStr)} after {alert50.name} — click to view
+        </div>
+      )}
+
+      {/* Projection Table */}
+      <div style={{marginBottom:'24px'}}>
+        <div className="section-header">
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <span className="section-title">Cash Flow Projection</span>
+            <span className="section-count">{projection.length} entries</span>
+          </div>
+        </div>
+        <div style={{border:'1px solid var(--border)',borderRadius:'6px',overflow:'hidden'}}>
+          <table className="proj-table" style={{width:'100%'}}>
+            <thead>
+              <tr>
+                <th>Date</th><th>Item</th>
+                <th className="td-right">Amount</th>
+                <th className="td-right">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(monthGroups).map(([monthKey, rows]) => {
+                const isOpen = collapsed[monthKey] !== true;
+                const [yr, mo] = monthKey.split('-').map(Number);
+                const label = new Date(yr, mo-1, 1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+                const eomBal = rows[rows.length-1]?.balance;
+                return (
+                  <React.Fragment key={monthKey}>
+                    <tr className="proj-month-header" onClick={() => setCollapsed(c=>({...c,[monthKey]:!c[monthKey]}))}>
+                      <td colSpan={2}>{isOpen ? '▾' : '▸'} {label}</td>
+                      <td className="td-right" style={{fontSize:'10px',letterSpacing:'.05em'}}>EOM</td>
+                      <td className={`td-right ${balClass(eomBal)}`} style={{fontFamily:'Libre Baskerville,serif',fontWeight:'700'}}>{fmtMoney(eomBal)}</td>
+                    </tr>
+                    {isOpen && rows.map(r => (
+                      <tr key={r.order} id={`proj-row-${r.order}`}>
+                        <td style={{color:'var(--ink-light)',fontSize:'11.5px'}}>{fmtDate(r.dateStr)}</td>
+                        <td>{r.name}</td>
+                        <td className={`td-right ${r.amount<0?'amt-expense':r.amount>0?'amt-income':'amt-zero'}`}>
+                          {r.amount===0 ? '—' : fmtMoney(r.amount)}
+                        </td>
+                        <td className={`td-right ${balClass(r.balance)}`} style={{fontWeight:'600'}}>{fmtMoney(r.balance)}</td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* EOM Summary */}
+      <div style={{marginBottom:'24px'}}>
+        <div className="section-header"><span className="section-title">End-of-Month Summary</span></div>
+        <div className="eom-grid">
+          {eom.map(({ monthKey, balance }) => (
+            <div key={monthKey} className="eom-card">
+              <div className="eom-month">{fmtMonthShort(monthKey+'-01')}</div>
+              <div className={`eom-bal ${balClass(balance)}`}>{fmtMoney(balance)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <hr className="divider"/>
+
+      {/* Bills */}
+      <div style={{marginBottom:'24px'}}>
+        <div className="section-header">
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <span className="section-title">Bills</span>
+            <span className="section-count">{bills.length}</span>
+          </div>
+          <button className="btn btn-primary btn-sm" onClick={()=>setBillModal({})}>+ Add Bill</button>
+        </div>
+        <div style={{border:'1px solid var(--border)',borderRadius:'6px',overflow:'hidden'}}>
+          <table className="data-table" style={{width:'100%'}}>
+            <thead><tr><th>Name</th><th className="td-right">Amount</th><th className="td-center">Due Day</th><th/></tr></thead>
+            <tbody>
+              {bills.map(b => (
+                <tr key={b.id}>
+                  <td>{b.name}</td>
+                  <td className={`td-right ${b.amount>0?'amt-expense':'amt-zero'}`}>{b.amount>0?fmtMoney(-b.amount):'—'}</td>
+                  <td className="td-center" style={{color:'var(--ink-light)',fontSize:'12px'}}>{b.dueDay}{['st','nd','rd'][b.dueDay-1]||'th'}</td>
+                  <td className="td-right" style={{whiteSpace:'nowrap'}}>
+                    <button className="icon-btn" onClick={()=>setBillModal(b)} title="Edit">✎</button>
+                    <button className="icon-btn danger" onClick={()=>delBill(b.id)} title="Delete">✕</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Income */}
+      <div style={{marginBottom:'24px'}}>
+        <div className="section-header">
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <span className="section-title">Income</span>
+            <span className="section-count">{income.length}</span>
+          </div>
+          <button className="btn btn-primary btn-sm" onClick={()=>setIncModal({})}>+ Add Income</button>
+        </div>
+        <div style={{border:'1px solid var(--border)',borderRadius:'6px',overflow:'hidden'}}>
+          <table className="data-table" style={{width:'100%'}}>
+            <thead><tr><th>Name</th><th className="td-right">Amount</th><th>Cadence</th><th>Schedule</th><th/></tr></thead>
+            <tbody>
+              {income.map(i => (
+                <tr key={i.id}>
+                  <td>{i.name}</td>
+                  <td className={`td-right ${i.amount>0?'amt-income':'amt-zero'}`}>{i.amount>0?fmtMoney(i.amount):'—'}</td>
+                  <td style={{color:'var(--ink-light)',fontSize:'12px'}}>{cadenceLabel[i.cadence]||i.cadence}</td>
+                  <td style={{color:'var(--ink-light)',fontSize:'11px'}}>
+                    {i.cadence==='biweekly' && `from ${fmtDate(i.startDate)}`}
+                    {i.cadence==='2x-month' && `${i.day1}th & ${i.day2>=29?'last':i.day2+'th'}`}
+                    {i.cadence==='monthly' && `${i.day1}${['st','nd','rd'][i.day1-1]||'th'} of month`}
+                  </td>
+                  <td className="td-right" style={{whiteSpace:'nowrap'}}>
+                    <button className="icon-btn" onClick={()=>setIncModal(i)} title="Edit">✎</button>
+                    <button className="icon-btn danger" onClick={()=>delInc(i.id)} title="Delete">✕</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Debts */}
+      <div>
+        <div className="section-header" style={{cursor:'pointer'}} onClick={()=>setShowDebts(s=>!s)}>
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <span className="section-title">{showDebts?'▾':'▸'} Debts &amp; Credit</span>
+            <span className="section-count">{debts.length}</span>
+          </div>
+          {showDebts && <button className="btn btn-primary btn-sm" onClick={e=>{e.stopPropagation();setDebtModal({})}}>+ Add</button>}
+        </div>
+        {showDebts && (
+          <div style={{border:'1px solid var(--border)',borderRadius:'6px',overflow:'auto'}}>
+            <table className="data-table" style={{width:'100%',minWidth:'700px'}}>
+              <thead><tr><th>Name</th><th>Creditor</th><th className="td-right">Balance</th><th className="td-right">Rate</th><th className="td-right">Min Pmt</th><th>Type</th><th>Paid By</th><th/></tr></thead>
+              <tbody>
+                {debts.map(d => (
+                  <tr key={d.id}>
+                    <td style={{fontWeight:'600'}}>{d.name}</td>
+                    <td style={{color:'var(--ink-light)',fontSize:'12px'}}>{d.creditor}</td>
+                    <td className="td-right amt-expense">{fmtMoney(-d.balance)}</td>
+                    <td className="td-right" style={{fontSize:'12px',color:'var(--ink-light)'}}>{d.rate>0?d.rate+'%':'—'}</td>
+                    <td className="td-right" style={{fontSize:'12px'}}>{d.minPmt>0?fmtMoney(-d.minPmt):'—'}</td>
+                    <td style={{fontSize:'11px',textTransform:'capitalize',color:'var(--ink-light)'}}>{d.type}</td>
+                    <td style={{fontSize:'11px',color:'var(--ink-light)'}}>{d.paidBy}</td>
+                    <td className="td-right" style={{whiteSpace:'nowrap'}}>
+                      <button className="icon-btn" onClick={()=>setDebtModal(d)}>✎</button>
+                      <button className="icon-btn danger" onClick={()=>delDebt(d.id)}>✕</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {billModal && <BillModal bill={billModal.id?billModal:null} onSave={saveBill} onClose={()=>setBillModal(null)}/>}
+      {incModal  && <IncomeModal inc={incModal.id?incModal:null} onSave={saveInc} onClose={()=>setIncModal(null)}/>}
+      {debtModal && <DebtModal debt={debtModal.id?debtModal:null} onSave={saveDebt} onClose={()=>setDebtModal(null)}/>}
+    </div>
+  );
+}
+
+// ── KID CARD ──────────────────────────────────────────────────────────────────
+
+function KidCard({ kid, rate, onChange, onDelete }) {
+  const [newChore, setNewChore] = useState({ name:'', hours:'' });
+  const [newDed,   setNewDed]   = useState({ name:'', amount:'' });
+
+  const totalHours = kid.chores.reduce((s,c)=>s+(parseFloat(c.hours)||0),0);
+  const gross = totalHours * rate * 2;
+  const totalDed = kid.deductions.reduce((s,d)=>s+(parseFloat(d.amount)||0),0);
+  const net = gross - totalDed;
+
+  const updChore = (id, field, val) => onChange({ ...kid, chores: kid.chores.map(c=>c.id===id?{...c,[field]:val}:c) });
+  const delChore = id => onChange({ ...kid, chores: kid.chores.filter(c=>c.id!==id) });
+  const addChore = () => {
+    if (!newChore.name) return;
+    onChange({ ...kid, chores: [...kid.chores, { id: uid(), name: newChore.name, hours: parseFloat(newChore.hours)||0 }] });
+    setNewChore({ name:'', hours:'' });
+  };
+
+  const updDed = (id, field, val) => onChange({ ...kid, deductions: kid.deductions.map(d=>d.id===id?{...d,[field]:val}:d) });
+  const delDed = id => onChange({ ...kid, deductions: kid.deductions.filter(d=>d.id!==id) });
+  const addDed = () => {
+    if (!newDed.name) return;
+    onChange({ ...kid, deductions: [...kid.deductions, { id: uid(), name: newDed.name, amount: parseFloat(newDed.amount)||0 }] });
+    setNewDed({ name:'', amount:'' });
+  };
+
+  return (
+    <div className="chore-card">
+      <div className="chore-card-header">
+        <input value={kid.name} onChange={e=>onChange({ ...kid, name: e.target.value })} placeholder="Name"
+          style={{fontFamily:"'Libre Baskerville',serif",fontSize:'17px',fontWeight:600,color:'var(--ink)',border:'none',borderBottom:'1px solid transparent',background:'transparent',outline:'none',flex:1,minWidth:0,padding:'2px 0'}}
+          onFocus={e=>e.target.style.borderBottomColor='var(--border)'} onBlur={e=>e.target.style.borderBottomColor='transparent'}/>
+        <div style={{display:'flex',alignItems:'center',gap:'8px',flexShrink:0}}>
+          <span className="chore-total">{fmtMoney(net)}</span>
+          <button className="icon-btn danger" title="Remove kid" onClick={onDelete}>✕</button>
+        </div>
+      </div>
+
+      {/* Chores */}
+      <div style={{marginBottom:'4px'}}>
+        <div style={{fontSize:'9px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:'var(--ink-light)',marginBottom:'6px'}}>Chores</div>
+        {kid.chores.map(c => (
+          <div key={c.id} className="chore-row">
+            <input className="input" style={{fontSize:'12px',padding:'4px 8px'}} value={c.name} onChange={e=>updChore(c.id,'name',e.target.value)}/>
+            <input className="input" style={{fontSize:'12px',padding:'4px 8px'}} type="number" step="0.25" min="0" value={c.hours} onChange={e=>updChore(c.id,'hours',e.target.value)} placeholder="hrs"/>
+            <span className="chore-amt">{fmtMoney((parseFloat(c.hours)||0)*rate)}</span>
+            <button className="icon-btn danger" style={{fontSize:'11px'}} onClick={()=>delChore(c.id)}>✕</button>
+          </div>
+        ))}
+        <div className="chore-row-add">
+          <input className="input" style={{fontSize:'12px',padding:'4px 8px'}} placeholder="New chore..." value={newChore.name} onChange={e=>setNewChore(n=>({...n,name:e.target.value}))} onKeyDown={e=>e.key==='Enter'&&addChore()}/>
+          <input className="input" style={{fontSize:'12px',padding:'4px 8px'}} type="number" step="0.25" min="0" placeholder="hrs" value={newChore.hours} onChange={e=>setNewChore(n=>({...n,hours:e.target.value}))} onKeyDown={e=>e.key==='Enter'&&addChore()}/>
+        </div>
+        <button className="btn btn-ghost btn-sm" style={{marginTop:'6px',width:'100%'}} onClick={addChore}>+ Add Chore</button>
+      </div>
+
+      <div className="chore-subtotal">
+        <span>{totalHours.toFixed(2)} hrs × ${rate.toFixed(2)}/hr × 2 wks</span>
+        <span style={{fontWeight:'600',color:'var(--sage-dark)'}}>{fmtMoney(gross)}</span>
+      </div>
+
+      {/* Deductions */}
+      <div className="ded-section">
+        <div style={{fontSize:'9px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:'var(--ink-light)',marginBottom:'6px'}}>Deductions</div>
+        {kid.deductions.map(d => (
+          <div key={d.id} className="ded-row">
+            <input className="input" style={{fontSize:'12px',padding:'4px 8px'}} value={d.name} onChange={e=>updDed(d.id,'name',e.target.value)}/>
+            <input className="input" style={{fontSize:'12px',padding:'4px 8px'}} type="number" step="0.01" min="0" value={d.amount} onChange={e=>updDed(d.id,'amount',e.target.value)}/>
+            <button className="icon-btn danger" style={{fontSize:'11px'}} onClick={()=>delDed(d.id)}>✕</button>
+          </div>
+        ))}
+        <div className="ded-row">
+          <input className="input" style={{fontSize:'12px',padding:'4px 8px'}} placeholder="Deduction..." value={newDed.name} onChange={e=>setNewDed(n=>({...n,name:e.target.value}))} onKeyDown={e=>e.key==='Enter'&&addDed()}/>
+          <input className="input" style={{fontSize:'12px',padding:'4px 8px'}} type="number" step="0.01" min="0" placeholder="$" value={newDed.amount} onChange={e=>setNewDed(n=>({...n,amount:e.target.value}))} onKeyDown={e=>e.key==='Enter'&&addDed()}/>
+          <button className="icon-btn" style={{fontSize:'11px'}} onClick={addDed}>+</button>
+        </div>
+      </div>
+
+      <div className="chore-net">
+        <span>Net Allowance</span>
+        <span className={balClass(net)}>{fmtMoney(net)}</span>
+      </div>
+    </div>
+  );
+}
+
+// ── CHORE BREAK TAB ───────────────────────────────────────────────────────────
+
+function ChoreBreakTab({ data, onChange }) {
+  const { rate, kids } = data;
+  const updateKid = (id, kid) => onChange({ ...data, kids: kids.map(k=>k.id===id?kid:k) });
+  const addKid = () => onChange({ ...data, kids: [...kids, { id: uid(), name: 'New Kid', chores: [], deductions: [] }] });
+  const delKid = id => onChange({ ...data, kids: kids.filter(k=>k.id!==id) });
+
+  return (
+    <div>
+      <div className="rate-bar">
+        <span className="rate-label">Rate per Hour</span>
+        <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
+          <span style={{fontSize:'13px',color:'var(--ink-light)'}}>$</span>
+          <input className="input rate-input" type="number" step="0.25" min="0" value={rate}
+            onChange={e => onChange({ ...data, rate: parseFloat(e.target.value)||0 })}/>
+          <span style={{fontSize:'12px',color:'var(--ink-light)'}}>/hr</span>
+        </div>
+        <div style={{marginLeft:'auto',fontSize:'12px',color:'var(--ink-light)'}}>
+          Total payout: <strong style={{color:'var(--gold-dark)'}}>
+            {fmtMoney(kids.reduce((s,k) => {
+              const gross = k.chores.reduce((a,c)=>a+(parseFloat(c.hours)||0),0)*rate;
+              const ded = k.deductions.reduce((a,d)=>a+(parseFloat(d.amount)||0),0);
+              return s+gross-ded;
+            },0))}
+          </strong>
+        </div>
+      </div>
+      <div className="section-header">
+        <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+          <span className="section-title">Kids</span>
+          <span className="section-count">{kids.length}</span>
+        </div>
+        <button className="btn btn-primary btn-sm" onClick={addKid}>+ Add Kid</button>
+      </div>
+      {kids.length === 0
+        ? <div className="empty-state">No kids yet. Click "+ Add Kid" to add one.</div>
+        : <div className="chore-grid">
+            {kids.map(k => <KidCard key={k.id} kid={k} rate={rate} onChange={kid=>updateKid(k.id,kid)} onDelete={()=>delKid(k.id)}/>)}
+          </div>}
+    </div>
+  );
+}
+
+// ── SAVE TO FILE ─────────────────────────────────────────────────────────────
+
+// When the page is served by server.py (http/https) we can write index.html back
+// to disk via POST /save — works in every browser. When opened directly as a
+// file:// page we fall back to the File System Access API (Chrome/Edge) or a
+// plain download (Firefox/Safari).
+const SERVER_MODE = location.protocol === 'http:' || location.protocol === 'https:';
+
+let _fileHandle = null;
+
+function buildHTML(appData) {
+  const { family, chores } = appData;
+  const babelScript = document.querySelector('script[type="text/babel"]');
+  let src = babelScript.textContent;
+
+  const replace = (s, tag, content) => {
+    const a = `// @@DATA:${tag}@@`, b = `// @@END:${tag}@@`;
+    const i = s.indexOf(a), j = s.indexOf(b);
+    if (i < 0 || j < 0) return s;
+    return s.slice(0, i) + a + '\n' + content + '\n' + s.slice(j);
+  };
+
+  src = replace(src, 'BILLS',  `const DEFAULT_BILLS = ${JSON.stringify(family.bills, null, 2)};`);
+  src = replace(src, 'INCOME', `const DEFAULT_INCOME = ${JSON.stringify(family.income, null, 2)};`);
+  src = replace(src, 'DEBTS',  `const DEFAULT_DEBTS = ${JSON.stringify(family.debts, null, 2)};`);
+  src = replace(src, 'KIDS',   `const DEFAULT_KIDS = ${JSON.stringify(chores.kids, null, 2)};`);
+  src = replace(src, 'INIT',
+    `const INIT = {\n  family: {\n    startBalance: ${family.startBalance},\n    startDate: ${JSON.stringify(family.startDate)},\n    projMonths: ${family.projMonths},\n    bills:  DEFAULT_BILLS,\n    income: DEFAULT_INCOME,\n    debts:  DEFAULT_DEBTS,\n  },\n  chores: { rate: ${chores.rate}, kids: DEFAULT_KIDS },\n};`);
+
+  const headParts = [];
+  for (const el of document.head.children) {
+    if (el.tagName === 'SCRIPT' && !el.src) continue;
+    headParts.push(el.outerHTML);
+  }
+
+  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n${headParts.join('\n')}\n</head>\n<body>\n<div id="root"></div>\n<script type="text/babel">\n${src}\n</` + `script>\n</body>\n</html>`;
+}
+
+async function writeToHandle(appData) {
+  if (!_fileHandle) return false;
+  try {
+    const writable = await _fileHandle.createWritable();
+    await writable.write(buildHTML(appData));
+    await writable.close();
+    return true;
+  } catch (e) {
+    _fileHandle = null;
+    return false;
+  }
+}
+
+async function writeToServer(appData) {
+  try {
+    const res = await fetch('/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/html' },
+      body: buildHTML(appData),
+    });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function pickAutoSave(appData, onReady) {
+  if (!window.showSaveFilePicker) {
+    // Fallback for browsers without File System Access API
+    const blob = new Blob([buildHTML(appData)], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'index.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    return;
+  }
+  try {
+    _fileHandle = await window.showSaveFilePicker({
+      suggestedName: 'index.html',
+      types: [{ description: 'HTML file', accept: { 'text/html': ['.html'] } }],
+    });
+    const ok = await writeToHandle(appData);
+    if (ok) onReady();
+  } catch (e) {
+    if (e.name !== 'AbortError') console.error('Save failed:', e);
+  }
+}
+
+// ── APP ───────────────────────────────────────────────────────────────────────
+
+// @@DATA:INIT@@
+const INIT = {
+  family: {
+    startBalance: 0,
+    startDate: localToday(),
+    projMonths: 13,
+    bills:  DEFAULT_BILLS,
+    income: DEFAULT_INCOME,
+    debts:  DEFAULT_DEBTS,
+  },
+  chores: { rate: 5, kids: DEFAULT_KIDS },
+};
+// @@END:INIT@@
+
+function App() {
+  const [tab, setTab] = useState('family');
+  const [appData, setAppData] = useState(() => {
+    const saved = loadData();
+    return saved || INIT;
+  });
+  const [autoSaveOn, setAutoSaveOn] = useState(SERVER_MODE);
+  const autoSaveRef = useRef(SERVER_MODE);
+  const saveTimerRef = useRef(null);
+
+  useEffect(() => { saveData(appData); }, [appData]);
+
+  useEffect(() => {
+    if (!autoSaveRef.current) return;
+    clearTimeout(saveTimerRef.current);
+    const save = SERVER_MODE ? writeToServer : writeToHandle;
+    saveTimerRef.current = setTimeout(() => save(appData), 800);
+    return () => clearTimeout(saveTimerRef.current);
+  }, [appData]);
+
+  const handleAutoSave = () => {
+    if (SERVER_MODE) { writeToServer(appData); return; }  // already auto-saving; force an immediate write
+    pickAutoSave(appData, () => {
+      autoSaveRef.current = true;
+      setAutoSaveOn(true);
+    });
+  };
+
+  const updateFamily = d => setAppData(a => ({ ...a, family: d }));
+  const updateChores = d => setAppData(a => ({ ...a, chores: d }));
+
+  const TABS = [
+    { id:'family', label:'Family Details' },
+    { id:'chores', label:'Chores'        },
+  ];
+
+  return (
+    <>
+      <header>
+        <div className="header-inner">
+          <div className="wordmark">
+            <span className="wordmark-title">Family Calculator</span>
+            <span className="wordmark-sub">Created by Bluestem Systems</span>
+          </div>
+          <nav>
+            {TABS.map(t => (
+              <button key={t.id} className={`nav-btn ${tab===t.id?'active':''}`} onClick={()=>setTab(t.id)}>
+                {t.label}
+              </button>
+            ))}
+            <button className={`nav-btn ${autoSaveOn ? 'active' : ''}`} style={{marginLeft:'6px',borderLeft:'1px solid rgba(255,255,255,.15)',paddingLeft:'14px'}} onClick={handleAutoSave} title={SERVER_MODE ? 'Saving to index.html on every change — click to save now' : (autoSaveOn ? 'Auto-saving on every change' : 'Pick a file to enable auto-save')}>
+              {autoSaveOn ? '● Auto-Save On' : '⬇ Save File'}
+            </button>
+          </nav>
+        </div>
+      </header>
+      <main>
+        {tab === 'family' && <FamilyDetailsTab data={appData.family} onChange={updateFamily}/>}
+        {tab === 'chores' && <ChoreBreakTab    data={appData.chores} onChange={updateChores}/>}
+      </main>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+
+
+</script>
+</body>
+</html>

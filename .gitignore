@@ -1,0 +1,10 @@
+# Build outputs (created when building on Windows)
+dist/
+build/
+Output/
+*.spec
+
+# Python / OS cruft
+__pycache__/
+*.pyc
+.DS_Store
