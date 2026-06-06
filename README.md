@@ -1,5 +1,7 @@
 # Family Calculator
 
+![Family Calculator showing the cash-flow projection with a running balance](docs/screenshot.png)
+
 **Family Calculator** is a configurable bill and cash-flow calculator for your household. You enter your starting balance, your bills, and your income, and it projects a **running balance** forward month by month — so you can see at a glance where your money lands on any given day and get a warning before it dips too low. Everything is fully editable: add, remove, or change bills and income (with bi-weekly, twice-monthly, or monthly schedules) and the projection updates instantly. It also includes a **chores tab** for tracking kids' chore hours and allowances.
 
 It runs in your web browser, and a tiny local helper (`server.py`, Python standard library only) saves your data straight to disk — in **any** browser (Firefox, Chrome, Edge, or Safari). Your data never leaves your computer.
