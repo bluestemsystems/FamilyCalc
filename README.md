@@ -1,6 +1,17 @@
 # Family Calculator
 
-A single-file personal finance and household management tool for the Willett family. It runs entirely in the browser with no frameworks or build step. A tiny local helper (`server.py`, Python standard library only) lets it save your data straight to disk in **any** browser — Firefox, Chrome, or Safari.
+A simple personal-finance and household tool. It runs in your web browser, with a tiny local helper (`server.py`, Python standard library only) that saves your data straight to disk in **any** browser — Firefox, Chrome, Edge, or Safari.
+
+## Download
+
+Grab the latest version from the [**Releases page**](../../releases/latest):
+
+- **Windows** — `FamilyCalc-Setup.exe` (installer)
+- **macOS** — `FamilyCalc-Mac.zip` (universal app, Intel + Apple Silicon)
+
+Both are unsigned, so on first launch your system will warn you:
+- **Windows:** SmartScreen → **More info → Run anyway**
+- **macOS:** right-click the app → **Open** → **Open** (or System Settings → Privacy & Security → **Open Anyway**)
 
 ## Tabs
 
@@ -13,19 +24,12 @@ A single-file personal finance and household management tool for the Willett fam
 - Manage **Income** sources with three cadences: bi-weekly (anchored to a start date), twice-a-month (two specific days), or monthly
 - Collapsible **Debts & Credit** table tracking balance, interest rate, minimum payment, credit line, and estimated payoff date
 
-### Chore Break
+### Chores
+- **Add or remove kids** and rename them inline
 - Set a **rate per hour**, then track each kid's chore hours for a two-week pay period
 - Per-kid cards show chore name, hours logged, and dollar value at the current rate
 - **Deductions** (e.g. phone bill share, internet) are subtracted from gross to show a net allowance
 - Total household payout shown in the header bar
-
-### Dr. Note
-- Enter an appointment date, patient name, and days out — the return date updates automatically
-- Generates print-ready doctor's excuse notes in three clinic formats:
-  - **NB Pediatric Associates** (New Braunfels)
-  - **Central Texas Eye Center**
-  - **Christus Trinity Clinic at Landa**
-- Each card previews the note in-browser; the Print button opens a formatted print window
 
 ## Windows version
 
@@ -69,6 +73,23 @@ When run as the packaged `.exe`, your data file is created at
 **`%LOCALAPPDATA%\FamilyCalc\index.html`** (writable, persists across updates).
 When run as a plain script, it uses `index.html` in this folder. Uninstalling
 leaves your data folder untouched.
+
+## macOS version
+
+The Mac build lives in [`mac/`](mac/) and packages into a single
+**Family Calculator.app** — Python is bundled inside, so users need nothing installed.
+
+### Building the app (on a Mac)
+
+1. Install **Python 3** from <https://www.python.org/downloads/> (the python.org build is *universal2*, which lets one app run on both Intel and Apple Silicon).
+2. `pip3 install pyinstaller`
+3. `bash mac/build_mac.sh`
+
+This produces `mac/dist/Family Calculator.app` and `mac/FamilyCalc-Mac.zip` (the
+distributable). The app is ad-hoc signed automatically so it launches; it is not
+notarized, so first-run still needs right-click → **Open**.
+
+Data is stored at **`~/Library/Application Support/FamilyCalc/index.html`**.
 
 ## Data Persistence
 

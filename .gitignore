@@ -1,8 +1,9 @@
-# Build outputs (created when building on Windows)
+# Build outputs (created when building on Windows or macOS)
 dist/
 build/
 Output/
 *.spec
+*.zip
 
 # Python / OS cruft
 __pycache__/
